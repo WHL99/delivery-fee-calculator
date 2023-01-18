@@ -13,35 +13,41 @@ function App() {
   const [dateTime, setDateTime] = useState<dayjs.Dayjs | null>(
     dayjs(new Date())
   );
-  const [deliveryPrice, setDeliveryPrice] = useState<number | undefined>(
-    undefined
-  );
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     setDeliveryPrice(() => {
-      let deliveryPrice;
+      let newDeliveryPrice;
       if (ifNoShippingFee(value) === true) {
-        deliveryPrice = 0;
+        newDeliveryPrice = 0;
       } else {
         if (ifRushHour(dateTime) === true) {
           let rushHourSurcharge = 1.2;
-          deliveryPrice =
+          newDeliveryPrice =
             (valueSurcharge(value) +
               distanceSurcharge(distance) +
               amountSurcharge(amount)) *
             rushHourSurcharge;
+        } else {
+          newDeliveryPrice =
+            valueSurcharge(value) +
+            distanceSurcharge(distance) +
+            amountSurcharge(amount);
         }
-        return Number(deliveryPrice?.toFixed(2));
+        return Number(newDeliveryPrice.toFixed(2)) >= 15
+          ? 15
+          : Number(newDeliveryPrice.toFixed(2));
       }
-      return Number(deliveryPrice.toFixed(2));
+      return Number(newDeliveryPrice.toFixed(2)) >= 15
+        ? 15
+        : Number(newDeliveryPrice.toFixed(2));
     });
     setValue(0);
     setDistance(0);
     setAmount(0);
     setDateTime(dayjs(new Date()));
-
-    console.log("尖峰？", ifRushHour(dateTime));
+    console.log(deliveryPrice);
   };
 
   const valueSurcharge = (value: number): number => {
@@ -131,9 +137,9 @@ function App() {
             }
             type="number"
             value={value}
-            min="0"
+            min="0.01"
             step="0.01"
-          />{" "}
+          />
           €
         </div>
         <div>
@@ -144,9 +150,9 @@ function App() {
             }
             type="number"
             value={distance}
-            min="0"
+            min="1"
             step="1"
-          />{" "}
+          />
           m
         </div>
         <div>
@@ -157,7 +163,7 @@ function App() {
             }
             type="number"
             value={amount}
-            min="0"
+            min="1"
             step="1"
           />
         </div>
