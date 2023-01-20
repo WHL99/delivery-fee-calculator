@@ -1,10 +1,18 @@
 import { useState } from "react";
 import "./App.css";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import TextField from "@mui/material/TextField";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import {
+  valueSurcharge,
+  ifNoShippingFee,
+  ifRushHour,
+  distanceSurcharge,
+  amountSurcharge,
+  deliveryPriceShouldLessThanMax,
+} from "./functions";
 
 function App() {
   const [value, setValue] = useState(0);
@@ -35,95 +43,14 @@ function App() {
             distanceSurcharge(distance) +
             amountSurcharge(amount);
         }
-        return Number(newDeliveryPrice.toFixed(2)) >= 15
-          ? 15
-          : Number(newDeliveryPrice.toFixed(2));
+        return deliveryPriceShouldLessThanMax(newDeliveryPrice);
       }
-      return Number(newDeliveryPrice.toFixed(2)) >= 15
-        ? 15
-        : Number(newDeliveryPrice.toFixed(2));
+      return deliveryPriceShouldLessThanMax(newDeliveryPrice);
     });
     setValue(0);
     setDistance(0);
     setAmount(0);
     setDateTime(dayjs(new Date()));
-    console.log(deliveryPrice);
-  };
-
-  const valueSurcharge = (value: number): number => {
-    let surcharge: number;
-    let minValue = 10;
-    if (value < minValue) {
-      surcharge = minValue - value;
-    } else {
-      surcharge = 0;
-    }
-    return surcharge;
-  };
-
-  const ifNoShippingFee = (value: number): boolean => {
-    let ifNoShippingFee;
-    let maxValue = 100;
-    if (value >= maxValue) {
-      ifNoShippingFee = true;
-    } else {
-      ifNoShippingFee = false;
-    }
-    return ifNoShippingFee;
-  };
-
-  const distanceSurcharge = (distance: number): number => {
-    let surcharge;
-    let minDistance = 1000;
-    let stepDistance = 500;
-    if (distance <= minDistance) {
-      surcharge = 2;
-    } else {
-      surcharge = 2 + Math.ceil((distance - minDistance) / stepDistance) * 1;
-    }
-    return surcharge;
-  };
-
-  const amountSurcharge = (amount: number): number => {
-    let surcharge;
-    let numberOfIteamNoSurcharge = 4;
-    let unitExtraCost = 0.5;
-    let numberOfIteamExtraBulkFee = 12;
-    let extraBulkFee = 1.2;
-    if (amount <= numberOfIteamNoSurcharge) {
-      surcharge = 0;
-    } else if (
-      amount > numberOfIteamNoSurcharge &&
-      amount <= numberOfIteamExtraBulkFee
-    ) {
-      surcharge = (amount - numberOfIteamNoSurcharge) * unitExtraCost;
-    } else {
-      surcharge =
-        (amount - numberOfIteamNoSurcharge) * unitExtraCost + extraBulkFee;
-    }
-    return surcharge;
-  };
-
-  const ifRushHour = (dateTime: dayjs.Dayjs | null): boolean => {
-    let ifRushHour;
-    let orderMin = dayjs(dateTime).minute();
-    let orderHour = dayjs(dateTime).hour();
-    let orderDay = dayjs(dateTime).day();
-    let rushDay = 5;
-    let rushHourStart = 15;
-    let rushHourEnd = 18;
-
-    if (
-      (orderDay === rushDay &&
-        orderHour >= rushHourStart &&
-        orderHour <= rushHourEnd) ||
-      (orderHour === rushHourEnd + 1 && orderMin === 0)
-    ) {
-      ifRushHour = true;
-    } else {
-      ifRushHour = false;
-    }
-    return ifRushHour;
   };
 
   return (
@@ -132,6 +59,7 @@ function App() {
         <div>
           <label>Cart Value</label>
           <input
+            data-testid="cart-value-test"
             onChange={(e) =>
               setValue(Number((e.target as HTMLInputElement).value))
             }
@@ -145,6 +73,7 @@ function App() {
         <div>
           <label>Delivery Distance</label>
           <input
+            data-testid="delivery-distance-test"
             onChange={(e) =>
               setDistance(Number((e.target as HTMLInputElement).value))
             }
@@ -158,6 +87,7 @@ function App() {
         <div>
           <label>Amount of Items</label>
           <input
+            data-testid="amount-test"
             onChange={(e) =>
               setAmount(Number((e.target as HTMLInputElement).value))
             }
@@ -181,9 +111,14 @@ function App() {
           </LocalizationProvider>
         </div>
 
-        <button type="submit">Calculate delivery price</button>
+        <button data-testid="submit-button-test" type="submit">
+          Calculate delivery price
+        </button>
       </form>
-      <div>{deliveryPrice}</div>
+      <div>
+        <label>Delivery Price</label>
+        <div data-testid="delivery-price-test">{deliveryPrice} €</div>
+      </div>
     </div>
   );
 }
