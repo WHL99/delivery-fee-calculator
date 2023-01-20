@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import dayjs from "dayjs";
-import TextField from "@mui/material/TextField";
+import { Box, Grid, Button, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -13,6 +13,10 @@ import {
   amountSurcharge,
   deliveryPriceShouldLessThanMax,
 } from "./functions";
+
+import { blue } from "@mui/material/colors";
+
+const primary = blue[50];
 
 function App() {
   const [value, setValue] = useState(0);
@@ -54,72 +58,98 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Cart Value</label>
-          <input
-            data-testid="cart-value-test"
-            onChange={(e) =>
-              setValue(Number((e.target as HTMLInputElement).value))
-            }
-            type="number"
-            value={value}
-            min="0.01"
-            step="0.01"
-          />
-          €
-        </div>
-        <div>
-          <label>Delivery Distance</label>
-          <input
-            data-testid="delivery-distance-test"
-            onChange={(e) =>
-              setDistance(Number((e.target as HTMLInputElement).value))
-            }
-            type="number"
-            value={distance}
-            min="1"
-            step="1"
-          />
-          m
-        </div>
-        <div>
-          <label>Amount of Items</label>
-          <input
-            data-testid="amount-test"
-            onChange={(e) =>
-              setAmount(Number((e.target as HTMLInputElement).value))
-            }
-            type="number"
-            value={amount}
-            min="1"
-            step="1"
-          />
-        </div>
-        <div>
-          <label>Time</label>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              renderInput={(props) => <TextField {...props} />}
-              value={dateTime}
-              onChange={(e) => {
-                setDateTime(e);
-              }}
-              minDateTime={dayjs(new Date())}
-            />
-          </LocalizationProvider>
-        </div>
+    <Grid
+      container
+      spacing={1}
+      sx={{
+        margin: "auto",
+        justifyContent: "center",
+      }}
+    >
+      <Grid item xs={10} md={8} lg={6} xl={4} mt={5}>
+        <h1>Delivery Fee Calculator</h1>
+        <form onSubmit={handleSubmit}>
+          <Box className="box">
+            <div>
+              <label>Cart Value: </label>
+              <input
+                data-testid="cart-value-test"
+                onChange={(e) =>
+                  setValue(Number((e.target as HTMLInputElement).value))
+                }
+                type="number"
+                value={value}
+                min="0.01"
+                step="0.01"
+              />
+              &nbsp;€
+            </div>
+            <div>
+              <label>Delivery Distance: </label>
+              <input
+                data-testid="delivery-distance-test"
+                onChange={(e) =>
+                  setDistance(Number((e.target as HTMLInputElement).value))
+                }
+                type="number"
+                value={distance}
+                min="1"
+                step="1"
+              />
+              &nbsp;m
+            </div>
+            <div>
+              <label>Amount of Items: </label>
+              <input
+                data-testid="amount-test"
+                onChange={(e) =>
+                  setAmount(Number((e.target as HTMLInputElement).value))
+                }
+                type="number"
+                value={amount}
+                min="1"
+                step="1"
+              />
+            </div>
+            <Grid display="flex" alignItems="center" direction="row">
+              <label>Time:&nbsp;</label>
 
-        <button data-testid="submit-button-test" type="submit">
-          Calculate delivery price
-        </button>
-      </form>
-      <div>
-        <label>Delivery Price</label>
-        <div data-testid="delivery-price-test">{deliveryPrice} €</div>
-      </div>
-    </div>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  renderInput={(props) => <TextField {...props} />}
+                  value={dateTime}
+                  onChange={(e) => {
+                    setDateTime(e);
+                  }}
+                  minDateTime={dayjs(new Date())}
+                />
+              </LocalizationProvider>
+            </Grid>
+
+            <Button
+              data-testid="submit-button-test"
+              type="submit"
+              variant="contained"
+              sx={{
+                backgroundColor: "rgb(50, 178, 228)",
+                ":hover": { backgroundColor: "rgb(114, 190, 220)" },
+              }}
+            >
+              Calculate delivery price
+            </Button>
+            <div>
+              <label>Delivery Price: </label>
+              <div
+                data-testid="delivery-price-test"
+                style={{ paddingTop: "10px", fontSize: "2rem" }}
+              >
+                {deliveryPrice} €
+              </div>
+            </div>
+          </Box>
+        </form>
+      </Grid>
+    </Grid>
   );
 }
 
