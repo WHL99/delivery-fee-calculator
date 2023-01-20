@@ -14,10 +14,6 @@ import {
   deliveryPriceShouldLessThanMax,
 } from "./functions";
 
-import { blue } from "@mui/material/colors";
-
-const primary = blue[50];
-
 function App() {
   const [value, setValue] = useState(0);
   const [distance, setDistance] = useState(0);
