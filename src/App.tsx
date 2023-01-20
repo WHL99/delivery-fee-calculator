@@ -5,6 +5,7 @@ import { Box, Grid, Button, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import MopedIcon from "@mui/icons-material/Moped";
 import {
   valueSurcharge,
   ifNoShippingFee,
@@ -62,7 +63,7 @@ function App() {
         justifyContent: "center",
       }}
     >
-      <Grid item xs={10} md={8} lg={6} xl={4} mt={5}>
+      <Grid item xs={10} md={8} lg={6} xl={5} mt={5}>
         <h1>Delivery Fee Calculator</h1>
         <form onSubmit={handleSubmit}>
           <Box className="box">
@@ -134,7 +135,11 @@ function App() {
               Calculate delivery price
             </Button>
             <div>
-              <label>Delivery Price: </label>
+              <Grid display="flex" alignItems="center" direction="row">
+                <label>Delivery Price&nbsp;&nbsp;</label>
+                <MopedIcon fontSize="large" />
+              </Grid>
+
               <div
                 data-testid="delivery-price-test"
                 style={{ paddingTop: "10px", fontSize: "2rem" }}
