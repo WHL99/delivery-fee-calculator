@@ -1,137 +1,208 @@
 import { describe, test } from "vitest";
-import { render } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import App from "./App";
 import dayjs from "dayjs";
 import {
-  valueSurcharge,
-  ifNoShippingFee,
+  cartValueSurcharge,
+  ifDeliveryFee,
   ifRushHour,
   distanceSurcharge,
   amountSurcharge,
-  deliveryPriceShouldLessThanMax,
+  maxDeliveryPrice,
+  rushHourDeliveryPrice,
+  noRushHourDeliveryPrice,
 } from "./functions";
 
-const { getByTestId } = render(<App />);
+render(<App />);
 
-describe("input of cart value", () => {
-  const input = getByTestId("cart-value-test") as HTMLInputElement;
+describe("Initial state of input cart value, and its attributes", () => {
+  const input = screen.getByTestId("cart-value") as HTMLInputElement;
   test("If the initial cart value is 0", () => {
     expect(input.value).toBe("0");
   });
-  test("input step should be equal to 0.01€", () => {
+  test("Input step should be equal to 0.01 €", () => {
     expect(input.getAttribute("step")).toBe("0.01");
   });
-  test("minimum input should be equal to 0.01€", () => {
+  test("Minimum input should be equal to 0.01 €", () => {
     expect(input.getAttribute("min")).toBe("0.01");
   });
 });
 
-describe("input of delivery distance", () => {
-  const input = getByTestId("delivery-distance-test") as HTMLInputElement;
+describe("Initial state of input delivery distance, and its attributes", () => {
+  const input = screen.getByTestId("delivery-distance") as HTMLInputElement;
   test("If the initial delivery distance value is 0", () => {
     expect(input.value).toBe("0");
   });
-  test("input step should be equal to 1m", () => {
+  test("Input step should be equal to 1 meter", () => {
     expect(input.getAttribute("step")).toBe("1");
   });
-  test("minimum input should be equal to 1m", () => {
+  test("Minimum input should be equal to 1 meter", () => {
     expect(input.getAttribute("min")).toBe("1");
   });
 });
 
-describe("input of amount of items", () => {
-  const input = getByTestId("amount-test") as HTMLInputElement;
+describe("Initial state of input amount of items, and its attributes", () => {
+  const input = screen.getByTestId("amount-of-items") as HTMLInputElement;
   test("If the initial amount of items value is 0", () => {
     expect(input.value).toBe("0");
   });
-  test("input step should be equal to 1", () => {
+  test("Input step should be equal to 1", () => {
     expect(input.getAttribute("step")).toBe("1");
   });
-  test("minimum input should be equal to 1m", () => {
+  test("Minimum input should be equal to 1", () => {
     expect(input.getAttribute("min")).toBe("1");
   });
 });
 
-describe("valueSurcharge function", () => {
-  test("returns the difference between value and 10€, when value is less than 10€", () => {
-    expect(valueSurcharge(5.1)).toBe(4.9);
-  });
-  test("returns 0, when value is greater than or equal to 10€", () => {
-    expect(valueSurcharge(10)).toBe(0);
-    expect(valueSurcharge(15)).toBe(0);
+describe("Initial state of date and time picker", () => {
+  const dateTimePicker = screen.getByLabelText("Pick date and time");
+  test("If it has initail date and time", () => {
+    expect(dateTimePicker).toHaveValue();
   });
 });
 
-describe("ifNoShippingFee function", () => {
-  test("returns true, when value is greater than or equal to 100€", () => {
-    expect(ifNoShippingFee(100)).toBe(true);
-    expect(ifNoShippingFee(120)).toBe(true);
-  });
-  test("returns false, when value is less than 100€", () => {
-    expect(ifNoShippingFee(50)).toBe(false);
-    expect(ifNoShippingFee(99)).toBe(false);
+describe("Check button attribute", () => {
+  const btn = screen.getByTestId("submit-button") as HTMLButtonElement;
+  test("If type of button is submit", () => {
+    expect(btn.getAttribute("type")).toBe("submit");
   });
 });
 
-describe("distanceSurcharge function", () => {
-  test("returns 2, when distance is less than or equal to 1000m", () => {
+describe("If cart value is less than 10€, a small order surcharge has to be charged. The surcharge is the difference between the cart value and 10€", () => {
+  test("Returns the difference between cart value and 10€, when the value is less than 10€", () => {
+    expect(cartValueSurcharge(5.1)).toBe(4.9);
+    expect(cartValueSurcharge(8.19)).toBe(1.81);
+  });
+  test("Returns 0, when cart value is greater than or equal to 10€", () => {
+    expect(cartValueSurcharge(10)).toBe(0);
+    expect(cartValueSurcharge(14.99)).toBe(0);
+  });
+});
+
+describe("If cart value greater than or equal to 100€", () => {
+  test("Returns false, when the cart value is greater than or equal to 100€", () => {
+    expect(ifDeliveryFee(100)).toBe(false);
+    expect(ifDeliveryFee(120)).toBe(false);
+  });
+  test("returns true, when the cart value is less than 100€", () => {
+    expect(ifDeliveryFee(50)).toBe(true);
+    expect(ifDeliveryFee(99)).toBe(true);
+  });
+});
+
+describe("A delivery fee for the first 1000m is 2€. If the delivery distance is longer than that, 1€ is added for every additional 500 meters. Even if the distance would be shorter than 500 meters, the minimum fee is always 1€.", () => {
+  test("Returns 2, when distance is less than or equal to 1000m", () => {
     expect(distanceSurcharge(500)).toBe(2);
     expect(distanceSurcharge(1000)).toBe(2);
   });
-  test("returns surcharge of distance based on step distance (500m), when distance is greater than 1000m", () => {
+  test("Returns surcharge of distance based on step distance 500m, when distance is greater than 1000m", () => {
     expect(distanceSurcharge(1499)).toBe(3);
     expect(distanceSurcharge(1500)).toBe(3);
     expect(distanceSurcharge(1501)).toBe(4);
   });
 });
 
-describe("amountSurcharge function", () => {
-  test("surcharge of amount is 0, when amount is less or equal than 4", () => {
+describe("If the number of items is five or more, an additional 50 cent surcharge is added for each item above five. An extra bulk fee applies for more than 12 items of 1,20€", () => {
+  test("Surcharge of amount is 0, when amount is less or equal than 4", () => {
     expect(amountSurcharge(4)).toBe(0);
   });
-  test("returns surcharge of amount based on unit cost 0.5, when amount is greater than 4 and less than or equal to 12", () => {
+  test("Returns surcharge of amount based on unit cost 50 cent, when amount is greater than 4 and less than or equal to 12", () => {
     expect(amountSurcharge(5)).toBe(0.5);
     expect(amountSurcharge(10)).toBe(3);
     expect(amountSurcharge(12)).toBe(4);
   });
-  test("returns surcharge of amount based on unit cost 0.5 and extra bulk fee 1.2, when amount is greater than 12", () => {
+  test("Returns surcharge of amount based on unit cost 50 cent and extra bulk fee 1,20€, when amount is greater than 12", () => {
     expect(amountSurcharge(13)).toBe(5.7);
     expect(amountSurcharge(15)).toBe(6.7);
   });
 });
 
-describe("ifRushHour function", () => {
-  test("returns true, during the rush hour (Friday 3 - 7 PM UTC)", () => {
-    let dateTime = dayjs("2023-02-24 15:00:00");
-    expect(ifRushHour(dateTime)).toBe(true);
-    dateTime = dayjs("2023-03-17 19:00:00");
-    expect(ifRushHour(dateTime)).toBe(true);
+describe("If the day and time during the rush hour (Friday 15:00 - 19:00 UTC)", () => {
+  test("Returns true, if day and time is in rush hour", () => {
+    expect(ifRushHour(dayjs("2023-02-24 15:00:00"))).toBe(true);
+    expect(ifRushHour(dayjs("2023-03-17 19:00:00"))).toBe(true);
   });
-  test("returns false, when day and time is not in rush hour", () => {
-    let dateTime = dayjs("2023-02-21 14:08:00");
-    expect(ifRushHour(dateTime)).toBe(false);
-    dateTime = dayjs("2023-02-23 19:00:00");
-    expect(ifRushHour(dateTime)).toBe(false);
+  test("Returns false, if day and time is not in rush hour", () => {
+    expect(ifRushHour(dayjs("2023-02-21 14:08:00"))).toBe(false);
+    expect(ifRushHour(dayjs("2023-02-23 19:00:00"))).toBe(false);
   });
 });
 
-describe("deliveryPriceShouldLessThanMax function", () => {
-  test("if delivery price more than or equal 15€, then only charge 15€", () => {
-    const deliveryPriceTest1 = deliveryPriceShouldLessThanMax(123);
-    expect(deliveryPriceTest1).toBeGreaterThanOrEqual(15);
-    expect(deliveryPriceTest1).toBe(15);
-
-    const deliveryPriceTest2 = deliveryPriceShouldLessThanMax(15.99);
-    expect(deliveryPriceTest2).toBeGreaterThanOrEqual(15);
-    expect(deliveryPriceTest2).toBe(15);
+describe("The delivery price can never be more than 15€, including possible surcharges", () => {
+  test("If delivery price more than or equal 15€, then only charge 15€", () => {
+    expect(maxDeliveryPrice(123)).toBe(15);
+    expect(maxDeliveryPrice(15.99)).toBe(15);
   });
-  test("if delivery price less than 15€, then round to the second decimal", () => {
-    const deliveryPriceTest1 = deliveryPriceShouldLessThanMax(14.694);
-    expect(deliveryPriceTest1).toBeLessThanOrEqual(15);
-    expect(deliveryPriceTest1).toBe(14.69);
+  test("If delivery price less than 15€, then charge the price", () => {
+    expect(maxDeliveryPrice(14.99)).toBe(14.99);
+    expect(maxDeliveryPrice(3)).toBe(3);
+  });
+});
 
-    const deliveryPriceTest2 = deliveryPriceShouldLessThanMax(13.398);
-    expect(deliveryPriceTest2).toBeLessThanOrEqual(15);
-    expect(deliveryPriceTest2).toBe(13.4);
+describe("Considering cart value, distance and amount of iteams to calculate delivery price, when in a rush hour (Friday 15:00 - 19:00 UTC)", () => {
+  test("The delivery price, when in a rush hour", () => {
+    expect(rushHourDeliveryPrice(7.19, 2000, 4)).toBe(8.17);
+  });
+});
+
+describe("Considering cart value, distance and amount of iteams to calculate delivery price, when not in a rush hour (Friday 15:00 - 19:00 UTC)", () => {
+  test("The delivery price, when not in a rush hour", () => {
+    expect(noRushHourDeliveryPrice(7.19, 2000, 4)).toBe(6.81);
+  });
+});
+
+describe("Submit the form", () => {
+  test("Calculates the delivery price based on the input values", async () => {
+    render(<App />);
+    const cartValueInput = screen.getByTestId("cart-value") as HTMLInputElement;
+    const deliveryDistanceInput = screen.getByTestId(
+      "delivery-distance"
+    ) as HTMLInputElement;
+    const amountInput = screen.getByTestId(
+      "amount-of-items"
+    ) as HTMLInputElement;
+    const dateTimePicker = screen.getByLabelText("Pick date and time");
+    const submitButton = screen.getByTestId(
+      "submit-button"
+    ) as HTMLButtonElement;
+
+    await act(async () => {
+      fireEvent.change(cartValueInput, { target: { value: "18.59" } });
+      fireEvent.change(deliveryDistanceInput, { target: { value: "1000" } });
+      fireEvent.change(amountInput, { target: { value: "4" } });
+      fireEvent.change(dateTimePicker, {
+        target: { value: "01/27/2023 05:23 PM" },
+      });
+    });
+    await act(async () => {
+      fireEvent.submit(submitButton);
+    });
+    expect(screen.getByTestId("delivery-price")?.textContent).toBe("2.4 €");
+
+    await act(async () => {
+      fireEvent.change(cartValueInput, { target: { value: "100" } });
+      fireEvent.change(deliveryDistanceInput, { target: { value: "10" } });
+      fireEvent.change(amountInput, { target: { value: "50" } });
+      fireEvent.change(dateTimePicker, {
+        target: { value: "01/27/2023 05:23 PM" },
+      });
+    });
+    await act(async () => {
+      fireEvent.submit(submitButton);
+    });
+    expect(screen.getByTestId("delivery-price")?.textContent).toBe("0 €");
+
+    await act(async () => {
+      fireEvent.change(cartValueInput, { target: { value: "7.89" } });
+      fireEvent.change(deliveryDistanceInput, { target: { value: "1001" } });
+      fireEvent.change(amountInput, { target: { value: "9" } });
+      fireEvent.change(dateTimePicker, {
+        target: { value: "01/26/2023 05:23 PM" },
+      });
+    });
+    await act(async () => {
+      fireEvent.submit(submitButton);
+    });
+    expect(screen.getByTestId("delivery-price")?.textContent).toBe("7.61 €");
   });
 });

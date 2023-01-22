@@ -1,82 +1,85 @@
 import dayjs from "dayjs";
 
-export const valueSurcharge = (value: number): number => {
-  let surcharge: number;
+export const cartValueSurcharge = (cartValue: number): number => {
+  let surcharge = 0;
   let minValue = 10;
-  if (value < minValue) {
-    surcharge = minValue - value;
-  } else {
-    surcharge = 0;
-  }
-  return surcharge;
+  return cartValue < minValue
+    ? (surcharge = Number((minValue - cartValue).toFixed(2)))
+    : surcharge;
 };
 
-export const ifNoShippingFee = (value: number): boolean => {
-  let ifNoShippingFee;
+export const ifDeliveryFee = (cartValue: number): boolean => {
   let maxValue = 100;
-  if (value >= maxValue) {
-    ifNoShippingFee = true;
-  } else {
-    ifNoShippingFee = false;
-  }
-  return ifNoShippingFee;
+  return cartValue >= maxValue ? false : true;
 };
 
 export const distanceSurcharge = (distance: number): number => {
-  let surcharge;
+  let surcharge = 2;
   let minDistance = 1000;
   let stepDistance = 500;
-  if (distance <= minDistance) {
-    surcharge = 2;
-  } else {
-    surcharge = 2 + Math.ceil((distance - minDistance) / stepDistance) * 1;
-  }
-  return surcharge;
+  return distance <= minDistance
+    ? surcharge
+    : (surcharge = 2 + Math.ceil((distance - minDistance) / stepDistance) * 1);
 };
 
 export const amountSurcharge = (amount: number): number => {
-  let surcharge;
-  let numberOfIteamNoSurcharge = 4;
+  let surcharge = 0;
+  let numberOfItemNoSurcharge = 4;
   let unitExtraCost = 0.5;
-  let numberOfIteamExtraBulkFee = 12;
+  let numberOfItemExtraBulkFee = 12;
   let extraBulkFee = 1.2;
-  if (amount <= numberOfIteamNoSurcharge) {
-    surcharge = 0;
-  } else if (
-    amount > numberOfIteamNoSurcharge &&
-    amount <= numberOfIteamExtraBulkFee
-  ) {
-    surcharge = (amount - numberOfIteamNoSurcharge) * unitExtraCost;
-  } else {
+  if (amount > numberOfItemNoSurcharge && amount <= numberOfItemExtraBulkFee) {
+    surcharge = (amount - numberOfItemNoSurcharge) * unitExtraCost;
+  } else if (amount > numberOfItemExtraBulkFee) {
     surcharge =
-      (amount - numberOfIteamNoSurcharge) * unitExtraCost + extraBulkFee;
+      (amount - numberOfItemNoSurcharge) * unitExtraCost + extraBulkFee;
   }
   return surcharge;
 };
 
 export const ifRushHour = (dateTime: dayjs.Dayjs | null): boolean => {
-  let ifRushHour;
   let orderMin = dayjs(dateTime).minute();
   let orderHour = dayjs(dateTime).hour();
   let orderDay = dayjs(dateTime).day();
   let rushDay = 5;
   let rushHourStart = 15;
   let rushHourEnd = 18;
-  if (
-    (orderDay === rushDay &&
-      orderHour >= rushHourStart &&
-      orderHour <= rushHourEnd) ||
+
+  return (orderDay === rushDay &&
+    orderHour >= rushHourStart &&
+    orderHour <= rushHourEnd) ||
     (orderDay === rushDay && orderHour === rushHourEnd + 1 && orderMin === 0)
-  ) {
-    ifRushHour = true;
-  } else {
-    ifRushHour = false;
-  }
-  return ifRushHour;
+    ? true
+    : false;
 };
 
-export const deliveryPriceShouldLessThanMax = (price: number): number => {
+export const maxDeliveryPrice = (deliveryPrice: number): number => {
   let maxDeliveryPrice = 15;
-  if (price >= maxDeliveryPrice) return maxDeliveryPrice;
-  else return Number(price.toFixed(2));
+  return deliveryPrice >= maxDeliveryPrice ? maxDeliveryPrice : deliveryPrice;
+};
+
+export const rushHourDeliveryPrice = (
+  cartValue: number,
+  distance: number,
+  amount: number
+): number => {
+  let rushHourSurcharge = 1.2;
+  let deliveryPrice =
+    (cartValueSurcharge(cartValue) +
+      distanceSurcharge(distance) +
+      amountSurcharge(amount)) *
+    rushHourSurcharge;
+  return Number(deliveryPrice.toFixed(2));
+};
+
+export const noRushHourDeliveryPrice = (
+  cartValue: number,
+  distance: number,
+  amount: number
+): number => {
+  let deliveryPrice =
+    cartValueSurcharge(cartValue) +
+    distanceSurcharge(distance) +
+    amountSurcharge(amount);
+  return Number(deliveryPrice.toFixed(2));
 };
