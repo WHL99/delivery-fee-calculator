@@ -1,4 +1,6 @@
 # Delivery Fee Calculator - frontend
+<p align="center"><img width="900" alt="index" src="https://user-images.githubusercontent.com/104759740/214044615-da9bd859-8fb2-435b-83af-a0e9a893d423.jpg"></p>
+
 ## Setup
 
 - Clone this repo
