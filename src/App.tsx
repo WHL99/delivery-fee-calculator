@@ -92,14 +92,13 @@ function App() {
               <label>Time:&nbsp;</label>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
-                  className="mkl"
                   label="Pick date and time"
                   renderInput={(props) => <TextField {...props} />}
                   value={dateTime}
                   onChange={(e) => {
                     setDateTime(e);
                   }}
-                  minDateTime={dayjs(new Date())}
+                  disablePast={true}
                 />
               </LocalizationProvider>
             </Grid>
