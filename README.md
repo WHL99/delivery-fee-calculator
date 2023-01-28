@@ -35,7 +35,7 @@
         │   App.tsx
         │   App.test.tsx
         │   App.css
-        │   functions.tsx
+        │   functions.ts
         │   package.json
         │   ...
         ...
