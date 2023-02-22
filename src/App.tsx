@@ -1,45 +1,33 @@
-import { useEffect, useState } from 'react';
-import './App.css';
-import dayjs from 'dayjs';
-import { Box, Grid, Button, TextField } from '@mui/material';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import MopedIcon from '@mui/icons-material/Moped';
-import {
-  ifDeliveryFee,
-  ifRushHour,
-  maxDeliveryPrice,
-  rushHourDeliveryPrice,
-  noRushHourDeliveryPrice,
-} from './functions';
+import { useEffect, useState } from 'react'
+import './App.css'
+import dayjs from 'dayjs'
+import { Box, Grid, Button, TextField } from '@mui/material'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import MopedIcon from '@mui/icons-material/Moped'
+import { ifDeliveryFee, ifRushHour, maxDeliveryPrice, rushHourDeliveryPrice, noRushHourDeliveryPrice } from './utils/delivery'
 
 function App() {
-  const [cartValue, setCartValue] = useState<number>(0);
-  const [distance, setDistance] = useState<number>(0);
-  const [amount, setAmount] = useState<number>(0);
-  const [dateTime, setDateTime] = useState<dayjs.Dayjs | null>(
-    dayjs(new Date())
-  );
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+  const [cartValue, setCartValue] = useState<number>(0)
+  const [distance, setDistance] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(0)
+  const [dateTime, setDateTime] = useState<dayjs.Dayjs | null>(dayjs(new Date()))
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0)
 
   const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
+    e.preventDefault()
     setDeliveryPrice(() => {
-      let newDeliveryPrice = 0;
+      let newDeliveryPrice = 0
       if (ifDeliveryFee(cartValue)) {
         if (ifRushHour(dateTime)) {
-          return maxDeliveryPrice(
-            rushHourDeliveryPrice(cartValue, distance, amount)
-          );
+          return maxDeliveryPrice(rushHourDeliveryPrice(cartValue, distance, amount))
         }
-        return maxDeliveryPrice(
-          noRushHourDeliveryPrice(cartValue, distance, amount)
-        );
+        return maxDeliveryPrice(noRushHourDeliveryPrice(cartValue, distance, amount))
       }
-      return newDeliveryPrice;
-    });
-  };
+      return newDeliveryPrice
+    })
+  }
 
   return (
     <Grid
@@ -55,38 +43,17 @@ function App() {
           <Box className='box'>
             <div>
               <label>Cart Value: </label>
-              <input
-                data-testid='cart-value'
-                onChange={(e) => setCartValue(Number(e.target.value))}
-                type='number'
-                value={cartValue}
-                min='0.01'
-                step='0.01'
-              />
+              <input data-testid='cart-value' onChange={(e) => setCartValue(Number(e.target.value))} type='number' value={cartValue} min='0.01' step='0.01' placeholder='0' />
               &nbsp;€
             </div>
             <div>
               <label>Delivery Distance: </label>
-              <input
-                data-testid='delivery-distance'
-                onChange={(e) => setDistance(Number(e.target.value))}
-                type='number'
-                value={distance}
-                min='1'
-                step='1'
-              />
+              <input data-testid='delivery-distance' onChange={(e) => setDistance(Number(e.target.value))} type='number' value={distance} min='1' step='1' />
               &nbsp;m
             </div>
             <div>
               <label>Amount of Items: </label>
-              <input
-                data-testid='amount-of-items'
-                onChange={(e) => setAmount(Number(e.target.value))}
-                type='number'
-                value={amount}
-                min='1'
-                step='1'
-              />
+              <input data-testid='amount-of-items' onChange={(e) => setAmount(Number(e.target.value))} type='number' value={amount} min='1' step='1' />
             </div>
             <Grid display='flex' alignItems='center' direction='row'>
               <label>Time:&nbsp;</label>
@@ -96,7 +63,7 @@ function App() {
                   renderInput={(props) => <TextField {...props} />}
                   value={dateTime}
                   onChange={(e) => {
-                    setDateTime(e);
+                    setDateTime(e)
                   }}
                   disablePast={true}
                 />
@@ -118,10 +85,7 @@ function App() {
                 <label>Delivery Price&nbsp;&nbsp;</label>
                 <MopedIcon fontSize='large' />
               </Grid>
-              <div
-                data-testid='delivery-price'
-                style={{ paddingTop: '10px', fontSize: '2rem' }}
-              >
+              <div data-testid='delivery-price' style={{ paddingTop: '10px', fontSize: '2rem' }}>
                 {deliveryPrice} €
               </div>
             </div>
@@ -129,7 +93,7 @@ function App() {
         </form>
       </Grid>
     </Grid>
-  );
+  )
 }
 
-export default App;
+export default App
