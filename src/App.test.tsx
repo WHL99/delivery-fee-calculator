@@ -17,8 +17,8 @@ render(<App />)
 
 describe('Initial state of input cart value, and its attributes', () => {
   const input = screen.getByTestId('cart-value') as HTMLInputElement
-  test('If the initial cart value is 0', () => {
-    expect(input.value).toBe('0')
+  test('If the initial cart value is null', () => {
+    expect(input.value).toBe('')
   })
   test('Input step should be equal to 0.01 €', () => {
     expect(input.getAttribute('step')).toBe('0.01')
@@ -30,8 +30,8 @@ describe('Initial state of input cart value, and its attributes', () => {
 
 describe('Initial state of input delivery distance, and its attributes', () => {
   const input = screen.getByTestId('delivery-distance') as HTMLInputElement
-  test('If the initial delivery distance value is 0', () => {
-    expect(input.value).toBe('0')
+  test('If the initial delivery distance value is null', () => {
+    expect(input.value).toBe('')
   })
   test('Input step should be equal to 1 meter', () => {
     expect(input.getAttribute('step')).toBe('1')
@@ -43,8 +43,8 @@ describe('Initial state of input delivery distance, and its attributes', () => {
 
 describe('Initial state of input amount of items, and its attributes', () => {
   const input = screen.getByTestId('amount-of-items') as HTMLInputElement
-  test('If the initial amount of items value is 0', () => {
-    expect(input.value).toBe('0')
+  test('If the initial amount of items value is null', () => {
+    expect(input.value).toBe('')
   })
   test('Input step should be equal to 1', () => {
     expect(input.getAttribute('step')).toBe('1')

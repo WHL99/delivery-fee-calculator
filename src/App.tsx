@@ -9,9 +9,9 @@ import MopedIcon from '@mui/icons-material/Moped'
 import { ifDeliveryFee, ifRushHour, maxDeliveryPrice, rushHourDeliveryPrice, noRushHourDeliveryPrice } from './utils/delivery'
 
 function App() {
-  const [cartValue, setCartValue] = useState<number>(0)
-  const [distance, setDistance] = useState<number>(0)
-  const [amount, setAmount] = useState<number>(0)
+  const [cartValue, setCartValue] = useState<number | undefined>()
+  const [distance, setDistance] = useState<number | undefined>()
+  const [amount, setAmount] = useState<number | undefined>()
   const [dateTime, setDateTime] = useState<dayjs.Dayjs | null>(dayjs(new Date()))
   const [deliveryPrice, setDeliveryPrice] = useState<number>(0)
 
@@ -37,25 +37,25 @@ function App() {
         justifyContent: 'center',
       }}
     >
-      <Grid xs={10} md={8} lg={6} xl={5} mt={5}>
+      <Grid item xs={10} md={8} lg={6} xl={5} mt={5}>
         <h1>Delivery Fee Calculator</h1>
         <form onSubmit={handleSubmit}>
           <Box className='box'>
             <div>
               <label>Cart Value: </label>
-              <input data-testid='cart-value' onChange={(e) => setCartValue(Number(e.target.value))} type='number' value={cartValue} min='0.01' step='0.01' placeholder='0' />
+              <input data-testid='cart-value' onChange={(e) => setCartValue(Number(e.target.value))} type='number' value={cartValue || ''} min='0.01' step='0.01' />
               &nbsp;€
             </div>
             <div>
               <label>Delivery Distance: </label>
-              <input data-testid='delivery-distance' onChange={(e) => setDistance(Number(e.target.value))} type='number' value={distance} min='1' step='1' />
+              <input data-testid='delivery-distance' onChange={(e) => setDistance(Number(e.target.value))} type='number' value={distance || ''} min='1' step='1' />
               &nbsp;m
             </div>
             <div>
               <label>Amount of Items: </label>
-              <input data-testid='amount-of-items' onChange={(e) => setAmount(Number(e.target.value))} type='number' value={amount} min='1' step='1' />
+              <input data-testid='amount-of-items' onChange={(e) => setAmount(Number(e.target.value))} type='number' value={amount || ''} min='1' step='1' />
             </div>
-            <Grid display='flex' alignItems='center' direction='row'>
+            <Grid container display='flex' justifyContent='center' alignItems='center' direction='row'>
               <label>Time:&nbsp;</label>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
@@ -81,7 +81,7 @@ function App() {
               Calculate delivery price
             </Button>
             <div>
-              <Grid display='flex' alignItems='center' direction='row'>
+              <Grid container display='flex' alignItems='center' direction='row'>
                 <label>Delivery Price&nbsp;&nbsp;</label>
                 <MopedIcon fontSize='large' />
               </Grid>

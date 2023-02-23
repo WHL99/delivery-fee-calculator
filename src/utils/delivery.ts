@@ -1,38 +1,37 @@
 import dayjs from 'dayjs'
 
-export const cartValueSurcharge = (cartValue: number): number => {
-  let surcharge = 0
+export const cartValueSurcharge = (cartValue: number | undefined): number => {
   let minValue = 10
-  return cartValue < minValue
-    ? (surcharge = Number((minValue - cartValue).toFixed(2)))
-    : surcharge
+  return cartValue !== undefined && cartValue < minValue
+    ? Number((minValue - cartValue).toFixed(2))
+    : 0
 }
 
-export const ifDeliveryFee = (cartValue: number): boolean => {
+export const ifDeliveryFee = (cartValue: number | undefined): boolean => {
   let maxValue = 100
-  return cartValue >= maxValue ? false : true
+  return cartValue !== undefined ? cartValue < maxValue : false
 }
 
-export const distanceSurcharge = (distance: number): number => {
+export const distanceSurcharge = (distance: number | undefined): number => {
   let surcharge = 2
   let minDistance = 1000
   let stepDistance = 500
-  return distance <= minDistance
-    ? surcharge
-    : (surcharge = 2 + Math.ceil((distance - minDistance) / stepDistance) * 1)
+  return distance !== undefined && distance > minDistance
+    ? surcharge + Math.ceil((distance - minDistance) / stepDistance) * 1
+    : surcharge
 }
 
-export const amountSurcharge = (amount: number): number => {
+export const amountSurcharge = (amount: number | undefined): number => {
   let surcharge = 0
   let numberOfItemNoSurcharge = 4
   let unitExtraCost = 0.5
   let numberOfItemExtraBulkFee = 12
   let extraBulkFee = 1.2
-  if (amount > numberOfItemNoSurcharge && amount <= numberOfItemExtraBulkFee) {
-    surcharge = (amount - numberOfItemNoSurcharge) * unitExtraCost
-  } else if (amount > numberOfItemExtraBulkFee) {
+  if (amount !== undefined && amount > numberOfItemNoSurcharge) {
     surcharge =
-      (amount - numberOfItemNoSurcharge) * unitExtraCost + extraBulkFee
+      amount > numberOfItemExtraBulkFee
+        ? (amount - numberOfItemNoSurcharge) * unitExtraCost + extraBulkFee
+        : (amount - numberOfItemNoSurcharge) * unitExtraCost
   }
   return surcharge
 }
@@ -59,9 +58,9 @@ export const maxDeliveryPrice = (deliveryPrice: number): number => {
 }
 
 export const rushHourDeliveryPrice = (
-  cartValue: number,
-  distance: number,
-  amount: number,
+  cartValue: number | undefined,
+  distance: number | undefined,
+  amount: number | undefined,
 ): number => {
   let rushHourSurcharge = 1.2
   let deliveryPrice =
@@ -73,9 +72,9 @@ export const rushHourDeliveryPrice = (
 }
 
 export const noRushHourDeliveryPrice = (
-  cartValue: number,
-  distance: number,
-  amount: number,
+  cartValue: number | undefined,
+  distance: number | undefined,
+  amount: number | undefined,
 ): number => {
   let deliveryPrice =
     cartValueSurcharge(cartValue) +
