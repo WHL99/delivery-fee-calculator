@@ -58,8 +58,3 @@
 ## Framework and Tool
 - [Vite](https://vitejs.dev/) : This is a small project, I can just use create-react-app, but I choose Vite becasue it runs much faster than create-react-app.
 - [Material UI](https://mui.com/material-ui/) : My personal preference, I like its [date and time picker](https://dev.material-ui-pickers.dev/api/DateTimePicker) UI.
-
-
-## What I want to improve
-- Set date and time picker to required. If the user doesn't pick a date and time, app will give a hint.
-- Initial input fields are empty instead of 0.
